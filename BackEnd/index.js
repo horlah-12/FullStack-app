@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import taskSchema from './Schema/taskSchema.js';
 import taskRouter from './routes/taskRouter.js';
 import taskController from './controllers/taskController.js';
+import path from 'path';
+
 
 dotenv.config();
 
@@ -17,6 +19,10 @@ const app = express();
 /*const port = process.env.PORT*/
 
 // Middleware to enable CORS
+
+
+const __dirname = path.resolve(); // Required for ES modules
+app.use(express.static(path.join(__dirname, "../FrontEnd/dist"))); // Vite build folder
 
 
 app.use(cors());
