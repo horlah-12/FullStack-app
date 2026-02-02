@@ -8,7 +8,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 //import { set } from 'mongoose'
 
 // Get API base URL from environment variable or default to localhost
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://fullstack-app-creb.onrender.com"
+
 
 function App() {
  
