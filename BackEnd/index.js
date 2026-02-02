@@ -22,6 +22,13 @@ const app = express();
 const __dirname = path.resolve(); // required for ES modules
 
 
+app.use(cors({
+  origin: "*", // for testing, or your frontend URL for production
+}));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -30,11 +37,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(cors({
-  origin: "*", // for testing, or your frontend URL for production
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+
 app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));; // Vite build folder
 
 
@@ -42,10 +46,10 @@ app.use('/', taskRouter);
 
 
 // Catch-all route to serve index.html for any unknown route
-/*
-app.get('/*', (req, res) => {
+
+/*app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "../FrontEnd/dist/index.html"));
-}); */
+});*/
 
 
 
