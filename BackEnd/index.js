@@ -12,6 +12,7 @@ import path from 'path';
 dotenv.config();
 
 
+
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -19,6 +20,15 @@ const app = express();
 
 // Middleware to enable CORS
 const __dirname = path.resolve(); // required for ES modules
+
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self';"
+  );
+  next();
+});
 
 app.use(cors({
   origin: "*", // for testing, or your frontend URL for production
