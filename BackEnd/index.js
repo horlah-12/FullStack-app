@@ -14,26 +14,30 @@ dotenv.config();
 
 const port = process.env.PORT || 3000;
 
-
 const app = express();
 /*const port = process.env.PORT*/
 
 // Middleware to enable CORS
-
-
-const __dirname = path.resolve(); // Required for ES modules
-app.use(express.static(path.join(__dirname, "../FrontEnd/dist"))); // Vite build folder
-
+const __dirname = path.resolve(); // required for ES modules
 
 app.use(cors({
   origin: "*", // for testing, or your frontend URL for production
 }));
-
-// Middleware to parse JSON and URL-encoded data (Receive JSON data from the client)
 app.use(express.json());
-
-// To handle URL-encoded data (e.g., from forms)
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));; // Vite build folder
+
+
+app.use('/', taskRouter);
+
+
+// Catch-all route to serve index.html for any unknown route
+/*
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, "../FrontEnd/dist/index.html"));
+}); */
+
+
 
 //Connect to MongoDB
 
@@ -42,7 +46,7 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch((error) => {console.error('Error connecting to MongoDB:', error);});
 
 
-app.use('/', taskRouter);
+
 
 
 app.listen(port, () => {
