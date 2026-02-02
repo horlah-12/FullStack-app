@@ -23,22 +23,24 @@ app.use(cors({ origin: "*"}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api', taskRouter);
-
-app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));
-
-
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
     "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self';"
   );
-  next();
+
+    next();
 });
 
-app.get('/*', (req, res) => {
+app.use('/api', taskRouter);
+
+app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));
+
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "../FrontEnd/dist/index.html"));
-})
+});
+
+
 
 //Connect to MongoDB
 
