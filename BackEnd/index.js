@@ -42,14 +42,14 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));; // Vite build folder
 
 
-app.use('/', taskRouter);
+app.use('/api', taskRouter);
 
 
 // Catch-all route to serve index.html for any unknown route
 
-/*app.get('*', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, "../FrontEnd/dist/index.html"));
-});*/
+})
 
 
 
