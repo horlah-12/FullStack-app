@@ -25,7 +25,9 @@ const __dirname = path.resolve(); // Required for ES modules
 app.use(express.static(path.join(__dirname, "../FrontEnd/dist"))); // Vite build folder
 
 
-app.use(cors());
+app.use(cors({
+  origin: "*", // for testing, or your frontend URL for production
+}));
 
 // Middleware to parse JSON and URL-encoded data (Receive JSON data from the client)
 app.use(express.json());
