@@ -29,7 +29,7 @@ export default function Congratulations() {
         Redirecting back to your tasks in 3 seconds.......
       </p>
       <Link 
-        to="/" 
+        to="/tasks" 
         style={{
           marginTop: '20px',
           padding: '10px 20px',

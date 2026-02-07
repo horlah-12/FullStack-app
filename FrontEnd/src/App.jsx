@@ -5,6 +5,8 @@ import TaskList from './components/TaskList.jsx'
 import Congratulations from './components/congratulations.jsx'
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from './components/Login.jsx';
+import Register from './components/register.jsx';
 //import { set } from 'mongoose'
 
 // Get API base URL from environment variable or default to localhost
@@ -248,11 +250,15 @@ const handleEditClick = (task) => {
   setTaskToEdit(task)
 };
 
+
 // No need for frontend filtering/sorting - backend handles it
  return (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={
+      <Route path="/" element={<Login />} />
+      <Route path="/Login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/tasks" element={
         <div className="TaskList">
           {/* Notification Display */}
           {notification.visible && (
@@ -290,7 +296,9 @@ const handleEditClick = (task) => {
           />
         </div>
       } />
-      <Route path="/" element={<Navigate to="/tasks" replace />} />
+
+      
+      
       <Route path="/CONGRATULATIONS" element={<Congratulations />} />
     </Routes>
   </BrowserRouter>

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import taskSchema from "../Schema/taskSchema.js";
+import userSchema from "../Schema/userSchema.js";
 
 const Task = mongoose.model("Task", taskSchema);
 
@@ -90,6 +91,7 @@ const deleteTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 const taskController = {
   createTask,
