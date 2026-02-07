@@ -22,7 +22,7 @@ function Login() {
          return; // stop execution
 }
          
-        fetch(`api/login`, {
+        fetch(`/api/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -33,6 +33,7 @@ function Login() {
             .then((response) => response.json())
             .then((data) => {
                 if (data.message === "Login successful") {
+                    localStorage.setItem("token", data.token);
                     navigate("/tasks");
                 } else {
                     setError("Login failed. Please check your credentials.");

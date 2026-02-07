@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 // ========================================
 
 // REGISTER
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
   try {
     console.log('📝 Register request received:', req.body);
     
@@ -101,7 +101,7 @@ app.post('/register', async (req, res) => {
 });
 
 // LOGIN
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
   try {
     console.log('🔐 Login request received:', req.body);
     
