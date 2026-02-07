@@ -209,7 +209,7 @@ function Login() {
                 </div>
 
                 {/* Footer */}
-                <p className="auth-footer">© 2025 HORLAH. All rights reserved.</p>
+                <p className="auth-footer">© 2026 HORLAH. All rights reserved.</p>
             </div>
         </div>
     );
