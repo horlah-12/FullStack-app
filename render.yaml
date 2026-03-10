@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: fullstack-app-22
+    runtime: node
+    rootDir: BackEnd
+    buildCommand: npm run build
+    startCommand: npm run start
