@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../components/auth.css";
 import { AuthContext } from "../components/AuthContext.jsx";
+import { apiUrl } from "../services/api.js";
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -26,7 +27,7 @@ function Login() {
          return; // stop execution
 }
          
-        fetch(`/api/login`, {
+        fetch(apiUrl("/login"), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

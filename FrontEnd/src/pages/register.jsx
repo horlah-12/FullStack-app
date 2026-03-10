@@ -1,6 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../components/auth.css';
+import { apiUrl } from "../services/api.js";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -113,7 +114,7 @@ if (!formData.email.includes('@')) {
       const fd = new FormData();
       fd.append("image", imageFile);
 
-      const uploadRes = await fetch("/api/upload", {
+      const uploadRes = await fetch(apiUrl("/upload"), {
         method: "POST",
         body: fd,
       });
@@ -131,7 +132,7 @@ if (!formData.email.includes('@')) {
 
       const imageUrl = uploadData.url;
 
-      const response = await fetch(`/api/register`, {
+      const response = await fetch(apiUrl("/register"), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

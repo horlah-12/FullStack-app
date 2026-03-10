@@ -5,7 +5,7 @@ import { AuthContext } from "../src/components/AuthContext.jsx";
 import { logout } from "../src/services/auth.js";
 
 export default function AppLayout({ children }) {
-  const { user } = useContext(AuthContext);
+  const { user, setUser, setIsLoggedIn } = useContext(AuthContext);
   const username = user?.username ?? user?.name ?? "Username";
   const userImage = user?.image ?? null;
 
@@ -35,6 +35,8 @@ export default function AppLayout({ children }) {
     try {
       await logout();
       setIsMenuOpen(false);
+      setUser(null);
+      setIsLoggedIn(false);
       navigate("/login", { replace: true });
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
