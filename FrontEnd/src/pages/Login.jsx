@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import './auth.css';
+import "../components/auth.css";
+import { AuthContext } from "../components/AuthContext.jsx";
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -9,6 +10,8 @@ function Login() {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const { setUser, setIsLoggedIn } = useContext(AuthContext);
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -16,7 +19,8 @@ function Login() {
         setError("");
     
         if (username === '' || password === '') {
-        setError("Please enter username and password");
+    setError("Please enter username and password");
+       
         console.log("Please enter username and password");
         setIsLoading(false);
          return; // stop execution
@@ -34,6 +38,21 @@ function Login() {
             .then((data) => {
                 if (data.message === "Login successful") {
                     localStorage.setItem("token", data.token);
+
+                    // Prefer backend-provided imageUrl; fall back to localStorage.
+                    let avatar = data.user?.imageUrl ?? null;
+                    try {
+                        avatar = avatar ?? localStorage.getItem(`avatar:${username}`);
+                    } catch {
+                        avatar = avatar ?? null;
+                    }
+
+                    if (data.user) {
+                        setUser({ ...data.user, image: data.user.image ?? avatar });
+                    } else {
+                        setUser({ username, image: avatar });
+                    }
+                    setIsLoggedIn(true);
                     navigate("/tasks");
                 } else {
                     setError("Login failed. Please check your credentials.");

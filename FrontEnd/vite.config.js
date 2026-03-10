@@ -10,4 +10,11 @@ export default defineConfig({
       },
     }),
   ],
+  // Make `/api/*` calls work in `npm run dev` by proxying to the Express backend.
+  // Backend defaults to PORT=3000 in `BackEnd/index.js`.
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3000',
+    },
+  },
 })

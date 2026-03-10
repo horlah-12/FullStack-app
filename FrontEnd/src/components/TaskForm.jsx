@@ -13,6 +13,7 @@ export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllT
 
     useEffect(() => {
         if (taskToEdit) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setTitle(taskToEdit.title || "");
             setDescription(taskToEdit.description || "");
             // Format date from ISO string to YYYY-MM-DD for input field

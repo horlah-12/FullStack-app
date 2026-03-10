@@ -2,11 +2,12 @@ import React from 'react'
 import { useState } from 'react'
 import TaskForm from './components/TaskForm.jsx'
 import TaskList from './components/TaskList.jsx'
-import Congratulations from './components/congratulations.jsx'
+import Congratulations from './pages/congratulations.jsx'
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from './components/Login.jsx';
-import Register from './components/register.jsx';
+import Login from './pages/Login.jsx';
+import Register from './pages/register.jsx';
+import AppLayout from '../layout/AppLayout.jsx'
 //import { set } from 'mongoose'
 
 // Get API base URL from environment variable or default to localhost
@@ -256,50 +257,59 @@ const handleEditClick = (task) => {
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Login />} />
-      <Route path="/Login" element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/tasks" element={
-        <div className="TaskList">
-          {/* Notification Display */}
-          {notification.visible && (
-            <div className={`notification notification-${notification.type}`}>
-              {notification.message}
-            </div>
-          )}
-          
-          <h1>Application TO-DO</h1>
-          <TaskForm onAddTask={addTask} taskToEdit={taskToEdit} onEditTask={editTask} onViewAllTasks={viewAllTasks}/>
 
-          <div className='controls'>
-              <label>Filter Tasks:</label>
-              <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+      <Route element={<AppLayout />}>
+        <Route
+          path="/tasks"
+          element={
+            <div className="TaskList">
+              {/* Notification Display */}
+              {notification.visible && (
+                <div className={`notification notification-${notification.type}`}>
+                  {notification.message}
+                </div>
+              )}
+
+              <h1>Application TO-DO</h1>
+              <TaskForm
+                onAddTask={addTask}
+                taskToEdit={taskToEdit}
+                onEditTask={editTask}
+                onViewAllTasks={viewAllTasks}
+              />
+
+              <div className="controls">
+                <label>Filter Tasks:</label>
+                <select value={filter} onChange={(e) => setFilter(e.target.value)}>
                   <option value="all">All</option>
                   <option value="pending">Pending</option>
                   <option value="in-progress">In-progress</option>
                   <option value="completed">Completed</option>
-              </select>
+                </select>
 
-              <label>Sort by due Date:</label>
-              <select value={sort} onChange={(e) => setSort(e.target.value)}>
+                <label>Sort by due Date:</label>
+                <select value={sort} onChange={(e) => setSort(e.target.value)}>
                   <option value="dueDateAsc">Ascending</option>
                   <option value="dueDateDesc">Descending</option>
-              </select>
-          </div>
-          
-          <TaskList 
-          tasks={tasks} 
-          emptyMessage={emptyMessage}
-          onToggle={toggleTaskStatus} 
-          onDelete={deleteTask} 
-          onEdit={handleEditClick}
-          onView={viewTask}
-          />
-        </div>
-      } />
+                </select>
+              </div>
 
-      
-      
-      <Route path="/CONGRATULATIONS" element={<Congratulations />} />
+              <TaskList
+                tasks={tasks}
+                emptyMessage={emptyMessage}
+                onToggle={toggleTaskStatus}
+                onDelete={deleteTask}
+                onEdit={handleEditClick}
+                onView={viewTask}
+              />
+            </div>
+          }
+        />
+
+        <Route path="/CONGRATULATIONS" element={<Congratulations />} />
+      </Route>
     </Routes>
   </BrowserRouter>
   )

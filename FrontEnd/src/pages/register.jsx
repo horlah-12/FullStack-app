@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './auth.css';
+import '../components/auth.css';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -8,13 +8,16 @@ const Register = () => {
     email: '',
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    Image: ''
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+  const [imageFile, setImageFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const handleChange = (e) => {
     setFormData({
@@ -22,6 +25,57 @@ const Register = () => {
       [e.target.name]: e.target.value
     });
     setError('');
+  };
+
+
+  // Virtual Image Link to make image preview work before upload
+  useEffect(() => {
+    if(!imageFile) {
+      setPreview(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(imageFile);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [imageFile]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    if (!file) {
+      setError("Please upload an image.");
+      setImageFile(null);
+      setPreview(null);
+      setFormData((prev) => ({ ...prev, Image: "" }));
+      return;
+    }
+
+    const allowed = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowed.includes(file.type)) {
+      setError("Please upload a JPEG, PNG, or GIF image.");
+      setImageFile(null);
+      setPreview(null);
+      setFormData((prev) => ({ ...prev, Image: "" }));
+      return;
+    }
+
+    if (file) {
+      // Keep avatars small so we don't blow up request sizes/localStorage.
+      const maxBytes = 500 * 1024; // 500KB
+      if (file.size > maxBytes) {
+        setError("Image is too large. Please upload an image under 500KB.");
+        setImageFile(null);
+        setPreview(null);
+        setFormData((prev) => ({ ...prev, Image: "" }));
+        return;
+      }
+
+      setImageFile(file);
+      // Clear any previously stored avatar URL/data.
+      setFormData((prev) => ({ ...prev, Image: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -35,8 +89,48 @@ const Register = () => {
       setIsLoading(false);
       return;
     }
+if (formData.password.length < 8) {
+  setError('Password must be at least 8 characters long');
+  setIsLoading(false);
+  return;
+}
+
+if (!imageFile) {
+  setError('Please upload an image');
+  setIsLoading(false);
+  return;
+}
+
+if (!formData.email.includes('@')) {
+  setError('Please enter a valid email address');
+  setIsLoading(false);
+  return;
+}
+
 
     try {
+      // 1) Upload image to Cloudinary (backend: POST /api/upload)
+      const fd = new FormData();
+      fd.append("image", imageFile);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: fd,
+      });
+
+      const uploadType = uploadRes.headers.get("content-type") || "";
+      if (!uploadType.includes("application/json")) {
+        const text = await uploadRes.text();
+        throw new Error(text || "Image upload failed");
+      }
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok) {
+        throw new Error(uploadData.error || "Image upload failed");
+      }
+
+      const imageUrl = uploadData.url;
+
       const response = await fetch(`/api/register`, {
         method: 'POST',
         headers: {
@@ -46,7 +140,8 @@ const Register = () => {
           name: formData.name,
           email: formData.email,
           username: formData.username,
-          password: formData.password
+          password: formData.password,
+          imageUrl,
         }),
       });
        console.log('Response status:', response.status);
@@ -72,6 +167,13 @@ const Register = () => {
       // Store token in localStorage
        if (data.token) {
       localStorage.setItem('token', data.token);
+    }
+
+    // Persist avatar locally (keyed by username) so we can retrieve it after login/refresh.
+    try {
+      localStorage.setItem(`avatar:${formData.username}`, imageUrl);
+    } catch {
+      // ignore
     }
     
      alert('Registration successful!');
@@ -254,6 +356,33 @@ const Register = () => {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* Image Input */}
+            <div className="form-group register-group">
+              <label className="form-label">Choose Image</label>
+              <div className="input-container">
+                <svg className="input-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <input
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="form-input register-input"
+                  required
+                />
+              </div>
+              {preview && (
+                <div style={{ marginTop: 10 }}>
+                  <img
+                    src={preview}
+                    alt="Profile preview"
+                    style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover" }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Terms Checkbox */}

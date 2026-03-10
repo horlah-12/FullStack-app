@@ -8,6 +8,7 @@ import taskRouter from './routes/taskRouter.js';
 import userSchema from './Schema/userSchema.js'; // This should be your User model
 import userRouter from './routes/userRouter.js';
 import path from 'path';
+import cloudinaryRouter from './cloudinary.js';
 
 dotenv.config();
 const app = express();
@@ -16,8 +17,9 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({ origin: "*"}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Allow slightly larger JSON bodies (e.g. if clients send base64 data URLs).
+app.use(express.json({ limit: "5mb" }));
+app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
 // Security headers
 app.use((req, res, next) => {
@@ -37,7 +39,7 @@ app.post('/api/register', async (req, res) => {
   try {
     console.log('📝 Register request received:', req.body);
     
-    const { name, email, username, password } = req.body;
+    const { name, email, username, password, imageUrl } = req.body;
 
     // Validate
     if (!name || !email || !username || !password) {
@@ -67,7 +69,8 @@ app.post('/api/register', async (req, res) => {
       name,
       email,
       username,
-      password: hashedPassword
+      password: hashedPassword,
+      imageUrl: imageUrl || null,
     });
 
     console.log('✅ User saved to database:', newUser._id);
@@ -87,7 +90,8 @@ app.post('/api/register', async (req, res) => {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
-        username: newUser.username
+        username: newUser.username,
+        imageUrl: newUser.imageUrl ?? null,
       }
     });
 
@@ -143,7 +147,8 @@ app.post('/api/login', async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        username: user.username
+        username: user.username,
+        imageUrl: user.imageUrl ?? null,
       }
     });
 
@@ -162,6 +167,7 @@ app.post('/api/login', async (req, res) => {
 
 app.use('/api', userRouter);
 app.use('/api', taskRouter);
+app.use('/api', cloudinaryRouter);
 
 // ========================================
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
