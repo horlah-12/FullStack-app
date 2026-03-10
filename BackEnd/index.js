@@ -177,6 +177,7 @@ app.use('/api', cloudinaryRouter);
 // ========================================
 
 const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
+console.log('📂 Serving static files from:', frontendDistPath);
 app.use(express.static(frontendDistPath));
 
 // SPA fallback: serve index.html for app routes only.
