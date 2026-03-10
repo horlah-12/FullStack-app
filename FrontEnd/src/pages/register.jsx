@@ -64,7 +64,7 @@ const Register = () => {
 
     if (file) {
       // Keep avatars small so we don't blow up request sizes/localStorage.
-      const maxBytes = 500 * 1024; // 500KB
+      const maxBytes = 3 * 1024 * 1024; // 500KB
       if (file.size > maxBytes) {
         setError("Image is too large. Please upload an image under 500KB.");
         setImageFile(null);
