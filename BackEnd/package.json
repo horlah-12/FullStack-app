@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "cd ../FrontEnd && npm install && npm run build",
+    "build": "cd ../FrontEnd && rm -rf node_modules && npm install && node node_modules/vite/bin/vite.js build",
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
