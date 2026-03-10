@@ -10,6 +10,7 @@ import userRouter from './routes/userRouter.js';
 import path from 'path';
 import cloudinaryRouter from './cloudinary.js';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 dotenv.config();
 const app = express();
@@ -176,9 +177,10 @@ app.use('/api', cloudinaryRouter);
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
 // ========================================
 
+/*
 const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
-console.log('📂 Serving static files from:', frontendDistPath);
-app.use(express.static(frontendDistPath));
+console.log('📂 Serving static files from:', frontendDistPath);*/
+
 
 // SPA fallback: serve index.html for app routes only.
 // If we return HTML for `/assets/*.css`, browsers show "MIME type text/html is not text/css".
@@ -187,6 +189,13 @@ app.use((req, res, next) => {
   if (path.extname(req.path)) return res.status(404).end();
   res.sendFile(path.join(frontendDistPath, "index.html"));
 });
+
+const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
+console.log("📁 Frontend dist path:", frontendDistPath);
+console.log("📂 Files exist:", fs.existsSync(frontendDistPath));
+console.log("📄 Files:", fs.existsSync(frontendDistPath) ? fs.readdirSync(frontendDistPath) : "MISSING");
+app.use(express.static(frontendDistPath));
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
