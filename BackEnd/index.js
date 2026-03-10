@@ -181,7 +181,7 @@ app.use(express.static(frontendDistPath));
 
 // SPA fallback: serve index.html for app routes only.
 // If we return HTML for `/assets/*.css`, browsers show "MIME type text/html is not text/css".
-app.get((req, res, next) => {
+app.use((req, res, next) => {
   if (req.path.startsWith("/api")) return next();
   if (path.extname(req.path)) return res.status(404).end();
   res.sendFile(path.join(frontendDistPath, "index.html"));
