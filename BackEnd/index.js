@@ -177,24 +177,26 @@ app.use('/api', cloudinaryRouter);
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
 // ========================================
 
-/*
+// ========================================
+// STATIC FILES & CATCH-ALL (MUST BE LAST)
+// ========================================
+
 const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
-console.log('📂 Serving static files from:', frontendDistPath);*/
+console.log("📁 Frontend dist path:", frontendDistPath);
+console.log("📄 Files:", fs.existsSync(frontendDistPath) ? fs.readdirSync(frontendDistPath) : "MISSING");
+console.log("🗂️ Assets:", fs.existsSync(path.join(frontendDistPath, "assets")) 
+  ? fs.readdirSync(path.join(frontendDistPath, "assets")) 
+  : "MISSING");
 
+// Serve static assets FIRST
+app.use(express.static(frontendDistPath));
 
-// SPA fallback: serve index.html for app routes only.
-// If we return HTML for `/assets/*.css`, browsers show "MIME type text/html is not text/css".
+// SPA fallback AFTER static
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) return next();
   if (path.extname(req.path)) return res.status(404).end();
   res.sendFile(path.join(frontendDistPath, "index.html"));
 });
-
-const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
-console.log("📁 Frontend dist path:", frontendDistPath);
-console.log("📂 Files exist:", fs.existsSync(frontendDistPath));
-console.log("📄 Files:", fs.existsSync(frontendDistPath) ? fs.readdirSync(frontendDistPath) : "MISSING");
-app.use(express.static(frontendDistPath));
 
 
 // Connect to MongoDB
