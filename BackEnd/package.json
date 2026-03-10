@@ -10,7 +10,7 @@
     "build": "npm run build-frontend",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "build-frontend": "cd ../FrontEnd && npm install && npx vite build"
+    "build-frontend": "cd ../FrontEnd && npm install && npm run build"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
