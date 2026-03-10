@@ -7,10 +7,9 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build-frontend",
+    "build": "cd ../FrontEnd && npm install && npm run build",
     "start": "node index.js",
-    "dev": "nodemon index.js",
-    "build-frontend": "cd ../FrontEnd && npm install && npm run build"
+    "dev": "nodemon index.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
