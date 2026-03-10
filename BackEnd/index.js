@@ -9,10 +9,13 @@ import userSchema from './Schema/userSchema.js'; // This should be your User mod
 import userRouter from './routes/userRouter.js';
 import path from 'path';
 import cloudinaryRouter from './cloudinary.js';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 const app = express();
-const __dirname = path.resolve();
+// Resolve paths relative to this file (Render's CWD is not guaranteed).
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const port = process.env.PORT || 3000;
 
 // Middleware
@@ -173,10 +176,15 @@ app.use('/api', cloudinaryRouter);
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
 // ========================================
 
-app.use(express.static(path.join(__dirname, "../FrontEnd/dist")));
+const frontendDistPath = path.resolve(__dirname, "../FrontEnd/dist");
+app.use(express.static(frontendDistPath));
 
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../FrontEnd/dist/index.html"));
+// SPA fallback: serve index.html for app routes only.
+// If we return HTML for `/assets/*.css`, browsers show "MIME type text/html is not text/css".
+app.get(/.*/, (req, res, next) => {
+  if (req.path.startsWith("/api")) return next();
+  if (path.extname(req.path)) return res.status(404).end();
+  res.sendFile(path.join(frontendDistPath, "index.html"));
 });
 
 // Connect to MongoDB
