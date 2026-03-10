@@ -176,7 +176,7 @@ app.use('/api', cloudinaryRouter);
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
 // ========================================
 
-const frontendDistPath = path.join(process.cwd(), "FrontEnd", "dist");
+const frontendDistPath = path.join(__dirname, "..", "FrontEnd", "dist");
 app.use(express.static(frontendDistPath));
 
 // SPA fallback: serve index.html for app routes only.
