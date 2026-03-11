@@ -19,6 +19,8 @@ const Register = () => {
   const navigate = useNavigate();
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [Progress, setProgress] = useState(0);
+  const [Uploading, setUploading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -111,6 +113,8 @@ if (!formData.email.includes('@')) {
 
     try {
       // 1) Upload image to Cloudinary (backend: POST /api/upload)
+      setProgress(0);
+      setUploading(true);
       const fd = new FormData();
       fd.append("image", imageFile);
 
@@ -118,6 +122,8 @@ if (!formData.email.includes('@')) {
         method: "POST",
         body: fd,
       });
+      const percent = Math.round((uploadRes.loaded / uploadRes.total) * 100);
+      setProgress(percent);
 
       const uploadType = uploadRes.headers.get("content-type") || "";
       if (!uploadType.includes("application/json")) {
