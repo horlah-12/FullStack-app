@@ -121,14 +121,17 @@ if (!formData.email.includes('@')) {
       const uploadRes = await fetch(apiUrl("/upload"), {
         method: "POST",
         body: fd,
-      });
-      const percent = Math.round((uploadRes.loaded / uploadRes.total) * 100);
-      setProgress(percent);
+      onUploadProgress: (uploadRes) => {
+        const percent = Math.round((uploadRes.loaded / uploadRes.total) * 100);
+        setProgress(percent);
+      }
+       });
 
       const uploadType = uploadRes.headers.get("content-type") || "";
       if (!uploadType.includes("application/json")) {
         const text = await uploadRes.text();
         throw new Error(text || "Image upload failed");
+        
       }
 
       const uploadData = await uploadRes.json();
@@ -327,7 +330,7 @@ if (!formData.email.includes('@')) {
                   )}
                 </button>
               </div>
-              <p className="form-helper">Must be at least 6 characters</p>
+              <p className="form-helper">Must be at least 8 characters</p>
             </div>
 
             {/* Confirm Password Input */}
@@ -385,6 +388,7 @@ if (!formData.email.includes('@')) {
                 <div style={{ marginTop: 10 }}>
                   <img
                     src={preview}
+                   
                     alt="Profile preview"
                     style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover" }}
                   />
