@@ -6,7 +6,10 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.35);
-  min-height: 520px;
+  /* Fill the fixed-height rail/overlay; don't grow with message count */
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
 }
 
 .chat-header {
@@ -29,7 +32,10 @@
 
 .chat-messages {
   padding: 1rem;
-  overflow: auto;
+  /* Allow the middle row to scroll instead of growing the panel */
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
