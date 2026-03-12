@@ -11,6 +11,7 @@ export default function AppLayout({ children }) {
   const userImage = user?.image ?? null;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const menuRef = useRef(null);
 
   const navigate = useNavigate();
@@ -26,6 +27,15 @@ export default function AppLayout({ children }) {
 
     return () =>
       document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setIsChatOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const handleToggleMenu = () => {
@@ -51,6 +61,35 @@ export default function AppLayout({ children }) {
           <ChatPanel />
         </div>
       </div>
+
+      {isChatOpen && (
+        <div
+          className={styles.chatOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chat"
+          onClick={() => setIsChatOpen(false)}
+        >
+          <div className={styles.chatOverlayInner} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.chatOverlayHeader}>
+              <div className={styles.chatOverlayTitle}>Chat</div>
+              <button type="button" className={styles.chatOverlayClose} onClick={() => setIsChatOpen(false)}>
+                Close
+              </button>
+            </div>
+            <ChatPanel />
+          </div>
+        </div>
+      )}
+
+      <button
+        type="button"
+        className={styles.chatFab}
+        onClick={() => setIsChatOpen(true)}
+        aria-label="Open chat"
+      >
+        Chat
+      </button>
       <div className={styles.userArea} ref={menuRef}>
         <button
           type="button"
