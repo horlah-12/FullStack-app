@@ -1,12 +1,38 @@
 import { WebSocket, WebSocketServer } from "ws";
 
 const rooms = new Map();
+const MAX_TEXT_LENGTH = 4000;
+const MAX_FILENAME_LENGTH = 200;
 
 function getOrCreateRoom(roomName) {
   if (!rooms.has(roomName)) {
     rooms.set(roomName, { clients: new Set(), messages: [] });
   }
   return rooms.get(roomName);
+}
+
+function clampText(value, maxLen) {
+  const text = String(value ?? "");
+  if (text.length <= maxLen) return text;
+  return text.slice(0, maxLen);
+}
+
+function sanitizeAttachment(input) {
+  if (!input || typeof input !== "object") return null;
+
+  const url = typeof input.url === "string" ? input.url.trim() : "";
+  if (!/^https?:\/\//i.test(url)) return null;
+
+  const mimeType = typeof input.mimeType === "string" ? input.mimeType.trim() : "";
+  const filename = clampText(input.filename ?? "", MAX_FILENAME_LENGTH);
+  const size = Number.isFinite(input.size) ? input.size : Number(input.size);
+
+  return {
+    url,
+    mimeType,
+    filename: filename || null,
+    size: Number.isFinite(size) && size > 0 ? size : null,
+  };
 }
 
 function broadcast(roomName, payload) {
@@ -102,16 +128,17 @@ function initChatWebSocket(httpServer) {
       if (type === "message") {
         const roomName = ws.room;
         const username = ws.username;
-        const messageText = String(data?.message ?? "").trim();
+        const messageText = clampText(String(data?.message ?? "").trim(), MAX_TEXT_LENGTH);
+        const attachment = sanitizeAttachment(data?.attachment);
 
         if (!roomName || !username) {
           ws.send(JSON.stringify({ type: "error", message: "You must join a room first" }));
           return;
         }
-        if (!messageText) return;
+        if (!messageText && !attachment) return;
 
         const room = getOrCreateRoom(roomName);
-        const payload = { type: "message", username, message: messageText, ts: Date.now() };
+        const payload = { type: "message", username, message: messageText, ts: Date.now(), attachment };
         room.messages.push(payload);
         broadcast(roomName, payload);
         return;

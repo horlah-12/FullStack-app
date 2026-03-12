@@ -31,7 +31,7 @@ app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 app.use((req, res, next) => {
   res.setHeader(
   "Content-Security-Policy",
-  "default-src 'self'; img-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:;"
+  "default-src 'self'; connect-src 'self' https: ws: wss:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self' data:;"
 );
   next();
 });

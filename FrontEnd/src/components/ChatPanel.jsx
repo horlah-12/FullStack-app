@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./ChatPanel.css";
+import { apiUrl } from "../services/api.js";
 
 function resolveWsUrl(raw) {
   const value = (raw ?? "").trim() || "/ws";
@@ -33,6 +34,7 @@ function safeId() {
 export default function ChatPanel() {
   const wsRef = useRef(null);
   const listEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const [status, setStatus] = useState("disconnected"); // disconnected | connecting | connected | error
   const [lastError, setLastError] = useState("");
@@ -41,9 +43,74 @@ export default function ChatPanel() {
   const [joined, setJoined] = useState(false);
 
   const [draft, setDraft] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [messages, setMessages] = useState([]);
 
-  const canSend = useMemo(() => joined && status === "connected" && draft.trim().length > 0, [draft, joined, status]);
+  const canSend = useMemo(() => {
+    if (!joined || status !== "connected" || uploading) return false;
+    return draft.trim().length > 0 || Boolean(attachmentFile);
+  }, [attachmentFile, draft, joined, status, uploading]);
+
+  const canAttach = useMemo(() => joined && status === "connected" && !uploading, [joined, status, uploading]);
+
+  const clearAttachment = () => {
+    setAttachmentFile(null);
+    setUploadError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const validateAttachment = (file) => {
+    if (!file) return { ok: false, error: "No file selected" };
+
+    const maxBytes = 10 * 1024 * 1024;
+    if (file.size > maxBytes) return { ok: false, error: "File is too large (max 10MB)" };
+
+    const allowedPrefixes = ["image/", "audio/"];
+    const allowedMimes = new Set([
+      "application/pdf",
+      "text/plain",
+      "application/zip",
+      "application/x-zip-compressed",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ]);
+
+    const ok = allowedPrefixes.some((p) => file.type?.startsWith(p)) || allowedMimes.has(file.type);
+    if (!ok) return { ok: false, error: `Unsupported file type: ${file.type || "unknown"}` };
+
+    return { ok: true };
+  };
+
+  const uploadAttachment = async (file) => {
+    const validation = validateAttachment(file);
+    if (!validation.ok) throw new Error(validation.error);
+
+    const fd = new FormData();
+    fd.append("file", file);
+
+    const response = await fetch(apiUrl("/upload-file"), {
+      method: "POST",
+      body: fd,
+    });
+
+    const contentType = response.headers.get("content-type") || "";
+    const payload = contentType.includes("application/json") ? await response.json() : { error: await response.text() };
+
+    if (!response.ok) {
+      throw new Error(payload?.error || "Upload failed");
+    }
+
+    return {
+      url: payload.url,
+      mimeType: file.type || payload.mimetype || "",
+      filename: file.name,
+      size: file.size,
+    };
+  };
 
   const connect = () => {
     const name = username.trim();
@@ -58,6 +125,7 @@ export default function ChatPanel() {
 
     setStatus("connecting");
     setLastError("");
+    setUploadError("");
 
     const ws = new WebSocket(WS_URL);
     wsRef.current = ws;
@@ -95,6 +163,7 @@ export default function ChatPanel() {
             username: data.username,
             message: data.message,
             ts: data.ts ?? Date.now(),
+            attachment: data.attachment ?? null,
           },
         ]);
       }
@@ -120,15 +189,30 @@ export default function ChatPanel() {
     ws?.close();
   };
 
-  const send = () => {
+  const send = async () => {
     const text = draft.trim();
-    if (!text) return;
+    if (!text && !attachmentFile) return;
 
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-    ws.send(JSON.stringify({ type: "message", message: text }));
-    setDraft("");
+    setUploadError("");
+
+    try {
+      let attachment = null;
+      if (attachmentFile) {
+        setUploading(true);
+        attachment = await uploadAttachment(attachmentFile);
+      }
+
+      ws.send(JSON.stringify({ type: "message", message: text, attachment }));
+      setDraft("");
+      clearAttachment();
+    } catch (error) {
+      setUploadError(error?.message || "Failed to upload attachment");
+    } finally {
+      setUploading(false);
+    }
   };
 
   useEffect(() => {
@@ -145,7 +229,7 @@ export default function ChatPanel() {
       <header className="chat-header">
         <div className="chat-title">Chat</div>
         <div className="chat-subtitle">
-          {status === "connected" ? `Connected • ${room || "—"}` : status === "connecting" ? "Connecting…" : "Disconnected"}
+          {status === "connected" ? `Connected • ${room || "—"}` : status === "connecting" ? "Connecting..." : "Disconnected"}
         </div>
       </header>
 
@@ -185,6 +269,7 @@ export default function ChatPanel() {
         {messages.map((m) => {
           const isSystem = m.type === "system";
           const isMine = m.type === "message" && m.username === username.trim();
+          const attachment = m.type === "message" ? m.attachment : null;
 
           return (
             <div
@@ -196,7 +281,20 @@ export default function ChatPanel() {
             >
               <div className="chat-bubble">
                 {m.type === "message" && !isMine && <div className="chat-from">{m.username}</div>}
-                <div className="chat-text">{m.type === "message" ? m.message : m.message}</div>
+                {m.message && <div className="chat-text">{m.message}</div>}
+                {attachment?.url && (
+                  <div className="chat-attachment">
+                    {attachment.mimeType?.startsWith("image/") ? (
+                      <img className="chat-attachment-image" src={attachment.url} alt={attachment.filename || "attachment"} />
+                    ) : attachment.mimeType?.startsWith("audio/") ? (
+                      <audio className="chat-attachment-audio" src={attachment.url} controls preload="metadata" />
+                    ) : (
+                      <a className="chat-attachment-file" href={attachment.url} target="_blank" rel="noreferrer">
+                        {attachment.filename || "Download file"}
+                      </a>
+                    )}
+                  </div>
+                )}
                 <div className="chat-meta">{formatTime(m.ts)}</div>
               </div>
             </div>
@@ -217,7 +315,7 @@ export default function ChatPanel() {
           className="chat-input"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={joined ? "Type a message…" : "Join a room to start chatting…"}
+          placeholder={joined ? "Type a message..." : "Join a room to start chatting..."}
           rows={2}
           disabled={!joined || status !== "connected"}
           onKeyDown={(e) => {
@@ -227,6 +325,16 @@ export default function ChatPanel() {
             }
           }}
         />
+
+        {uploadError && <div className="chat-upload-error">{uploadError}</div>}
+        {attachmentFile && (
+          <div className="chat-attachment-preview" title={attachmentFile.name}>
+            <span className="chat-attachment-name">{attachmentFile.name}</span>
+            <button type="button" className="chat-attachment-remove" onClick={clearAttachment} disabled={uploading}>
+              Remove
+            </button>
+          </div>
+        )}
         <div className="chat-actions">
           <button type="button" onClick={leave} className="chat-button chat-button--ghost" disabled={!joined || status !== "connected"}>
             Leave
@@ -240,8 +348,34 @@ export default function ChatPanel() {
           >
             Clear
           </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="chat-file-input"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              if (!file) return;
+              const validation = validateAttachment(file);
+              if (!validation.ok) {
+                setUploadError(validation.error);
+                clearAttachment();
+                return;
+              }
+              setUploadError("");
+              setAttachmentFile(file);
+            }}
+          />
+          <button
+            type="button"
+            className="chat-button chat-button--ghost"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!canAttach}
+            title="Attach a file"
+          >
+            Attach
+          </button>
           <button type="submit" className="chat-button" disabled={!canSend}>
-            Send
+            {uploading ? "Uploading..." : "Send"}
           </button>
         </div>
       </form>

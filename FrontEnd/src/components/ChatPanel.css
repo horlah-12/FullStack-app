@@ -188,6 +188,85 @@
   margin-top: 0.7rem;
 }
 
+.chat-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.chat-upload-error {
+  margin-top: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #991b1b;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.chat-attachment-preview {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.22);
+}
+
+.chat-attachment-name {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #24324a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-attachment-remove {
+  border: 1px solid rgba(66, 82, 110, 0.28);
+  background: transparent;
+  color: #42526e;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 800;
+}
+
+.chat-attachment {
+  margin-top: 0.6rem;
+}
+
+.chat-attachment-image {
+  display: block;
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.chat-attachment-audio {
+  width: 100%;
+}
+
+.chat-attachment-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 800;
+  color: #24324a;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
 .chat-button {
   padding: 0.65rem 0.95rem;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

@@ -17,7 +17,7 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 3 * 1024 * 1024,
+    fileSize: 10 * 1024 * 1024,
   },
 });
 
@@ -58,6 +58,67 @@ router.post("/upload", upload.single("image"), async (req, res) => {
   }
 });
 
+router.post("/upload-file", upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const { originalname, mimetype, size } = req.file;
+
+    // Allow a reasonable set: images, audio, and common docs.
+    const allowedPrefixes = ["image/", "audio/"];
+    const allowedMimes = new Set([
+      "application/pdf",
+      "text/plain",
+      "application/zip",
+      "application/x-zip-compressed",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ]);
+
+    const isAllowed =
+      allowedPrefixes.some((p) => mimetype?.startsWith(p)) || allowedMimes.has(mimetype);
+
+    if (!isAllowed) {
+      return res.status(400).json({ error: `Unsupported file type: ${mimetype || "unknown"}` });
+    }
+
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: "To-do App/Chat Uploads",
+          resource_type: "auto",
+          use_filename: true,
+          unique_filename: true,
+        },
+        (error, uploadResult) => {
+          if (uploadResult) resolve(uploadResult);
+          else reject(error);
+        },
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(stream);
+    });
+
+    res.status(200).json({
+      public_id: result.public_id,
+      url: result.secure_url,
+      resource_type: result.resource_type,
+      format: result.format,
+      bytes: result.bytes,
+      filename: originalname,
+      mimetype,
+      size,
+      message: "File uploaded successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to upload file" });
+  }
+});
+
 router.get("/images", async (req, res) => {
   try {
     const result = await cloudinary.api.resources({
@@ -85,4 +146,3 @@ router.delete("/images/:publicId", async (req, res) => {
 });
 
 export default router;
-
