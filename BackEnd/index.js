@@ -176,6 +176,7 @@ app.use('/api', cloudinaryRouter);
 
 // Optional chat (WebSocket + REST visibility endpoints).
 // If the `ws` dependency isn't installed, the API still boots without chat.
+let chatEnabled = false;
 try {
   const [{ initChatWebSocket }, { default: chatRouter }] = await Promise.all([
     import("./controllers/chatController.js"),
@@ -183,6 +184,7 @@ try {
   ]);
   app.use("/api", chatRouter);
   initChatWebSocket(server);
+  chatEnabled = true;
 } catch (error) {
   console.warn("Chat disabled:", error?.message ?? error);
 }
@@ -228,6 +230,8 @@ mongoose.connect(process.env.MONGODB_URI)
 
 server.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
-  console.log(`Chat WebSocket running at ws://localhost:${port}/ws`);
+  if (chatEnabled) {
+    console.log(`Chat WebSocket running at ws://localhost:${port}/ws`);
+  }
 
 });

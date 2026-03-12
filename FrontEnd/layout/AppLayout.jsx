@@ -3,6 +3,7 @@ import { Outlet, useNavigate, Link } from "react-router-dom";
 import styles from "./AppLayout.module.css";
 import { AuthContext } from "../src/components/AuthContext.jsx";
 import { logout } from "../src/services/auth.js";
+import ChatPanel from "../src/components/ChatPanel.jsx";
 
 export default function AppLayout({ children }) {
   const { user, setUser, setIsLoggedIn } = useContext(AuthContext);
@@ -45,6 +46,11 @@ export default function AppLayout({ children }) {
 
   return (
     <div className={styles.appLayout}>
+      <div className={styles.chatRail} aria-label="Chat rail">
+        <div className={styles.chatRailInner}>
+          <ChatPanel />
+        </div>
+      </div>
       <div className={styles.userArea} ref={menuRef}>
         <button
           type="button"

@@ -35,6 +35,7 @@ export default function ChatPanel() {
   const listEndRef = useRef(null);
 
   const [status, setStatus] = useState("disconnected"); // disconnected | connecting | connected | error
+  const [lastError, setLastError] = useState("");
   const [username, setUsername] = useState(() => localStorage.getItem("chat.username") || "");
   const [room, setRoom] = useState(() => localStorage.getItem("chat.room") || "general");
   const [joined, setJoined] = useState(false);
@@ -56,14 +57,15 @@ export default function ChatPanel() {
     localStorage.setItem("chat.room", roomName);
 
     setStatus("connecting");
+    setLastError("");
 
     const ws = new WebSocket(WS_URL);
     wsRef.current = ws;
 
     ws.onopen = () => {
       setStatus("connected");
-      setJoined(true);
       ws.send(JSON.stringify({ type: "join", username: name, room: roomName }));
+      setJoined(true);
     };
 
     ws.onmessage = (event) => {
@@ -98,7 +100,10 @@ export default function ChatPanel() {
       }
     };
 
-    ws.onerror = () => setStatus("error");
+    ws.onerror = () => {
+      setStatus("error");
+      setLastError("WebSocket connection error");
+    };
 
     ws.onclose = () => {
       setStatus("disconnected");
@@ -171,7 +176,8 @@ export default function ChatPanel() {
               Join
              </button>
            </div>
-          {import.meta.env.DEV && <div className="chat-join-hint"></div>}
+          {lastError && <div className="chat-join-hint">{lastError}</div>}
+          {import.meta.env.DEV && <div className="chat-join-hint">WS: {WS_URL}</div>}
          </form>
        )}
 

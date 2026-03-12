@@ -163,9 +163,30 @@
   padding: 20px 16px;
 }
 
+.chatRail {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  width: var(--chat-rail-width);
+  padding: 16px;
+  box-sizing: border-box;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.chatRailInner {
+  height: 100%;
+  pointer-events: auto;
+}
+
 @media (max-width: 900px) {
   .appLayout {
     --chat-rail-width: 0px;
+  }
+
+  .chatRail {
+    display: none;
   }
 
   .headerInner {
