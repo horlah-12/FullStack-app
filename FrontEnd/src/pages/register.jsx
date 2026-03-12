@@ -66,9 +66,9 @@ const Register = () => {
 
     if (file) {
       // Keep avatars small so we don't blow up request sizes/localStorage.
-      const maxBytes = 3 * 1024 * 1024; // 500KB
+      const maxBytes = 3 * 1024 * 1024; // 3MB
       if (file.size > maxBytes) {
-        setError("Image is too large. Please upload an image under 500KB.");
+        setError("Image is too large. Please upload an image under 3MB.");
         setImageFile(null);
         setPreview(null);
         setFormData((prev) => ({ ...prev, Image: "" }));
@@ -121,11 +121,7 @@ if (!formData.email.includes('@')) {
       const uploadRes = await fetch(apiUrl("/upload"), {
         method: "POST",
         body: fd,
-      onUploadProgress: (uploadRes) => {
-        const percent = Math.round((uploadRes.loaded / uploadRes.total) * 100);
-        setProgress(percent);
-      }
-       });
+      });
 
       const uploadType = uploadRes.headers.get("content-type") || "";
       if (!uploadType.includes("application/json")) {
@@ -140,6 +136,7 @@ if (!formData.email.includes('@')) {
       }
 
       const imageUrl = uploadData.url;
+      setProgress(100);
 
       const response = await fetch(apiUrl("/register"), {
         method: 'POST',
@@ -192,11 +189,12 @@ if (!formData.email.includes('@')) {
       navigate('/login');
 
 
-   } catch (err) {
+  } catch (err) {
     console.error('Registration error:', err);
     setError(err.message || 'Registration failed. Please try again.');
   } finally {
     setIsLoading(false);
+    setUploading(false);
   }
 };
 

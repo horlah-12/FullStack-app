@@ -23,6 +23,11 @@ const AuthProvider = ({ children }) => {
 
             } catch (error) {
                 console.error("Error al obtener el usuario logeado:", error);
+                try {
+                    localStorage.removeItem("token");
+                } catch {
+                    // ignore
+                }
                 setUser(null);
                 setIsLoggedIn(false);
 

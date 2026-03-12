@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -8,7 +7,7 @@ export default function Congratulations() {
   useEffect(() => {
     // Redirect back to tasks after 3 seconds
     const timer = setTimeout(() => {
-      navigate("/");
+      navigate("/tasks", { replace: true });
     }, 3000);
 
     return () => clearTimeout(timer);

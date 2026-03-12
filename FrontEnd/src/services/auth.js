@@ -27,6 +27,9 @@ export async function getLoggedUser() {
 
   const payload = decodeJwt(token);
   if (!payload) throw new Error("Invalid token");
+  if (typeof payload.exp === "number" && payload.exp * 1000 < Date.now()) {
+    throw new Error("Token expired");
+  }
 
   const username = payload.username ?? payload.name ?? null;
   let image = null;

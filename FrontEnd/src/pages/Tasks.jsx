@@ -72,9 +72,11 @@ export default function TasksPage() {
       setTasks((prevTasks) => [...prevTasks, savedTask]);
       setTaskToEdit(null);
       showNotification("TO-DO TASK SENT SUCCESSFULLY TO DATABASE", "success");
+      return savedTask;
     } catch (error) {
       console.error("Error:", error);
       showNotification(error.message || "Failed to add task", "error");
+      throw error;
     }
   };
 
@@ -141,9 +143,11 @@ export default function TasksPage() {
       setTasks((prev) => prev.map((t) => (t._id === taskId ? savedTask : t)));
       setTaskToEdit(null);
       showNotification("TASK UPDATED SUCCESSFULLY", "success");
+      return savedTask;
     } catch (error) {
       console.error("Error updating task:", error);
       showNotification("Failed to update task", "error");
+      throw error;
     }
   };
 
@@ -213,6 +217,7 @@ export default function TasksPage() {
         taskToEdit={taskToEdit}
         onEditTask={editTask}
         onViewAllTasks={viewAllTasks}
+        onCancelEdit={() => setTaskToEdit(null)}
       />
 
       <div className="controls">
@@ -242,4 +247,3 @@ export default function TasksPage() {
     </div>
   );
 }
-

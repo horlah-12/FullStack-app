@@ -2,18 +2,20 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import http from "http";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import taskRouter from './routes/taskRouter.js';
 import userSchema from './Schema/userSchema.js'; // This should be your User model
-import userRouter from './routes/userRouter.js';
 import path from 'path';
 import cloudinaryRouter from './cloudinary.js';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
+
 dotenv.config();
 const app = express();
+const server = http.createServer(app);
 // Resolve paths relative to this file (Render's CWD is not guaranteed).
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -169,9 +171,21 @@ app.post('/api/login', async (req, res) => {
 // API ROUTES
 // ========================================
 
-app.use('/api', userRouter);
 app.use('/api', taskRouter);
 app.use('/api', cloudinaryRouter);
+
+// Optional chat (WebSocket + REST visibility endpoints).
+// If the `ws` dependency isn't installed, the API still boots without chat.
+try {
+  const [{ initChatWebSocket }, { default: chatRouter }] = await Promise.all([
+    import("./controllers/chatController.js"),
+    import("./routes/chatRoutes.js"),
+  ]);
+  app.use("/api", chatRouter);
+  initChatWebSocket(server);
+} catch (error) {
+  console.warn("Chat disabled:", error?.message ?? error);
+}
 
 // ========================================
 // STATIC FILES & CATCH-ALL (MUST BE LAST)
@@ -199,6 +213,10 @@ app.use((req, res, next) => {
 });
 
 
+
+// ========================================
+  
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
@@ -208,6 +226,8 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('❌ MongoDB Error:', error);
   });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`✅ Server running at http://localhost:${port}`);
+  console.log(`Chat WebSocket running at ws://localhost:${port}/ws`);
+
 });

@@ -1,9 +1,9 @@
 import "./TaskForm.css";
 
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllTasks }) {
+export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllTasks, onCancelEdit }) {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -25,7 +25,7 @@ export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllT
         }
     }, [taskToEdit]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
        if (!title || !description || !dueDate) {
@@ -33,21 +33,25 @@ export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllT
             return;
         }
 
-        if (taskToEdit) {
-            console.log('Editing task with ID:', taskToEdit._id);
-            onEditTask(taskToEdit._id, {
+        try {
+          if (taskToEdit) {
+            await onEditTask(taskToEdit._id, {
                 title,
                 description,
                 dueDate,
                 status,
             });
-        } else {
-            onAddTask({
+          } else {
+            await onAddTask({
                 title,
                 description,
                 dueDate,
                 status,
             });
+            navigate("/congratulations");
+          }
+        } catch {
+          return;
         }
 
         // Clear form after submission
@@ -55,9 +59,6 @@ export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllT
         setDescription("");
         setDueDate("");
         setStatus("pending");
-        
-        // Navigate after successful submission
-        navigate("/CONGRATULATIONS");
     };
 
     const handleCancel = () => {
@@ -65,6 +66,7 @@ export default function TaskForm({ onAddTask, taskToEdit, onEditTask, onViewAllT
         setDescription("");
         setDueDate("");
         setStatus("pending");
+        onCancelEdit?.();
     };
     return (
 
