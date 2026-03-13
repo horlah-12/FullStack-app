@@ -154,6 +154,7 @@ app.post('/api/login', async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
+        email: user.email,
         username: user.username,
         imageUrl: user.imageUrl ?? null,
       }

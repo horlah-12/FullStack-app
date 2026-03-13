@@ -86,9 +86,8 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 100%;
-  padding: 12px 28px;
   border-left: none;
+  justify-self: end;
 }
 
 .userButton {

@@ -6,7 +6,9 @@ function resolveWsUrl(raw) {
   const value = (raw ?? "").trim() || "/ws";
   if (/^wss?:\/\//i.test(value)) return value;
 
-  const path = value.startsWith("/") ? value : `/${value}`;
+  let path = value.startsWith("/") ? value : `/${value}`;
+  // Vite dev proxy is configured for `/ws`, not `/api/ws`.
+  if (path === "/api/ws") path = "/ws";
   const proto = globalThis.location?.protocol === "https:" ? "wss:" : "ws:";
   const host = globalThis.location?.host || "localhost";
   return `${proto}//${host}${path}`;

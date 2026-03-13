@@ -34,6 +34,7 @@ export default function AccountSettings() {
     });
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
+    const lockedEmail = user?.email ?? "";
 
     useEffect(() => {
         setProfile({
@@ -47,6 +48,11 @@ export default function AccountSettings() {
         event.preventDefault();
         setError("");
         setNotice("");
+
+        if (lockedEmail && profile.email !== lockedEmail) {
+            setError("You can't change your email address.");
+            return;
+        }
 
         if (
             passwords.newPassword ||
@@ -165,9 +171,8 @@ export default function AccountSettings() {
                         <input
                             className={styles.input}
                             value={profile.email}
-                            onChange={(e) =>
-                                setProfile((p) => ({ ...p, email: e.target.value }))
-                            }
+                            readOnly
+                            aria-readonly="true"
                             placeholder="email@domain.com"
                             autoComplete="email"
                         />

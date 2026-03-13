@@ -56,6 +56,49 @@ export default function AppLayout({ children }) {
 
   return (
     <div className={styles.appLayout}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link to="/tasks" className={styles.brand} aria-label="Home">
+            <span className={styles.brandText}>Task Manager</span>
+          </Link>
+
+          <div className={styles.userArea} ref={menuRef}>
+            <button
+              type="button"
+              className={styles.userButton}
+              onClick={handleToggleMenu}
+              aria-expanded={isMenuOpen}
+              aria-controls="user-menu"
+              aria-label="User menu"
+            >
+              <span className={styles.username}>{username}</span>
+              <span
+                className={styles.avatar}
+                aria-hidden="true"
+                style={userImage ? { backgroundImage: `url(${userImage})` } : undefined}
+              />
+            </button>
+
+            {isMenuOpen && (
+              <div className={styles.userMenu} id="user-menu" role="menu">
+                <Link to="/profile" className={styles.menuItem} role="menuitem" onClick={() => setIsMenuOpen(false)}>
+                  Ver Perfil
+                </Link>
+
+                <button
+                  type="button"
+                  className={styles.menuItem}
+                  role="menuitem"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className={styles.chatRail} aria-label="Chat rail">
         <div className={styles.chatRailInner}>
           <ChatPanel />
@@ -90,40 +133,6 @@ export default function AppLayout({ children }) {
       >
         Chat
       </button>
-      <div className={styles.userArea} ref={menuRef}>
-        <button
-          type="button"
-          className={styles.userButton}
-          onClick={handleToggleMenu}
-          aria-expanded={isMenuOpen}
-          aria-controls="user-menu"
-          aria-label="User menu"
-        >
-          <span className={styles.username}>{username}</span>
-          <span
-            className={styles.avatar}
-            aria-hidden="true"
-            style={userImage ? { backgroundImage: `url(${userImage})` } : undefined}
-          />
-        </button>
-
-        {isMenuOpen && (
-          <div className={styles.userMenu} id="user-menu" role="menu">
-            <Link to="/profile" className={styles.menuItem} role="menuitem">
-              Ver Perfil
-            </Link>
-
-            <button
-              type="button"
-              className={styles.menuItem}
-              role="menuitem"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
 
       <main className={styles.main}>
         {children ?? <Outlet />}
