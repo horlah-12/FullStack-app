@@ -32,6 +32,8 @@ export default function Profile() {
         newPassword: "",
         confirmPassword: "",
     });
+
+    const [imageUrl, setImageUrl] = useState(user?.imageUrl ?? null);
     const [error, setError] = useState("");
     const [notice, setNotice] = useState("");
     const lockedEmail = user?.email ?? "";
@@ -41,7 +43,16 @@ export default function Profile() {
             name: user?.name ?? "",
             username: user?.username ?? "",
             email: user?.email ?? "",
+            
         });
+
+        setPasswords({
+            currentPassword: "",
+            newPassword: "",
+            confirmPassword: "",
+        });
+
+        setImageUrl(user?.imageUrl ?? null);
     }, [user]);
 
     const handleSubmit = async (event) => {
@@ -52,6 +63,22 @@ export default function Profile() {
         if (lockedEmail && profile.email !== lockedEmail) {
             setError("You can't change your email address.");
             return;
+        }
+
+        if (!profile.name || !profile.username || !profile.email) {
+            setError("All fields are required.");
+            return;
+        }
+
+        if (imageUrl !== user?.imageUrl) {
+            try {
+                const data = await updateUser({ imageUrl });
+                const updatedUser = data?.user ?? data?.data?.user;
+                setUser?.(updatedUser ?? user);
+                setNotice("Image saved successfully.");
+            } catch (error) {
+                setError(error.message);
+            }
         }
 
         if (
@@ -65,6 +92,13 @@ export default function Profile() {
             }
             if (passwords.newPassword !== passwords.confirmPassword) {
                 setError("La nueva contraseña y la confirmación no coinciden.");
+                return;
+            }
+        }
+
+        if (passwords.newPassword) {
+            if (passwords.newPassword.length < 8) {
+                setError("La contraseña debe tener al menos 8 caracteres.");
                 return;
             }
         }
@@ -89,6 +123,8 @@ export default function Profile() {
                     name: profile.name,
                     username: profile.username,
                     email: profile.email,
+                    imageUrl: profile.imageUrl,
+                    password: passwords.newPassword,
                 })),
             );
 
