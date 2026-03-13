@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt'; // npm install bcrypt
 import jwt from 'jsonwebtoken'; // npm install jsonwebtoken
-import { UserModel } from '../models/userModel.js'; // Adjust path as needed
+import UserModel from '../Schema/userSchema.js'; // User  from '../Schema/userSchema'; // Adjust path as needed
 
 const router = express.Router();
 
@@ -121,4 +121,4 @@ router.post('/login', async (req, res) => {
   }
 });
 
-export default authrouter;
+export default router;

@@ -6,6 +6,7 @@ import http from "http";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import taskRouter from './routes/taskRouter.js';
+import userRouter from './routes/authRoutes.js';
 import userSchema from './Schema/userSchema.js'; // This should be your User model
 import path from 'path';
 import cloudinaryRouter from './cloudinary.js';
@@ -173,6 +174,8 @@ app.post('/api/login', async (req, res) => {
 
 app.use('/api', taskRouter);
 app.use('/api', cloudinaryRouter);
+app.use('/api', userRouter);
+
 
 // Optional chat (WebSocket + REST visibility endpoints).
 // If the `ws` dependency isn't installed, the API still boots without chat.

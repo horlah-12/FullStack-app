@@ -1,0 +1,210 @@
+.page {
+  min-height: calc(100vh - 64px);
+  padding: 36px 16px 56px;
+  display: grid;
+  justify-items: center;
+  background: var(--color-background-primary);
+}
+
+.title {
+  width: min(740px, 100%);
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 18px;
+  color: var(--color-text-primary);
+}
+
+.card {
+  width: min(740px, 100%);
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 22px 22px 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.cardHeader {
+  padding-bottom: 4px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.profileRow {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatarWrap {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  border: 1.5px solid var(--color-text-primary);
+  background: var(--color-background-primary);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.profileMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.profileName {
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.profileUsername {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+  max-width: 360px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fff;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.input:focus {
+  border-color: var(--color-button);
+  box-shadow: 0 0 0 3px rgba(19, 164, 236, 0.18);
+}
+
+.fullRow {
+  grid-column: 1 / -1;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+.message {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.error {
+  background: rgba(220, 38, 38, 0.08);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  color: #991b1b;
+}
+
+.success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #065f46;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.cancel {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.save {
+  border: none;
+  background: var(--color-button);
+  color: var(--color-button-text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: background-color 150ms ease;
+}
+
+.delete {
+  border: none;
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border-radius: 10px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: background-color 150ms ease;
+}
+
+.save:hover,
+.save:focus-visible {
+  background: var(--color-button-hover);
+}
+
+@media (max-width: 520px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileRow {
+    grid-template-columns: 64px 1fr;
+  }
+
+  .avatarWrap {
+    width: 64px;
+    height: 64px;
+  }
+}
+
