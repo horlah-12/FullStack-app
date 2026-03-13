@@ -7,6 +7,20 @@ import { updateUser, deleteUser } from "../services/apiUser.js";
 export default function Profile() {
     const navigate = useNavigate();
     const { user, setUser } = useContext(AuthContext);
+    const applyUserUpdate = (updatedUser) => {
+        if (!updatedUser) return;
+        setUser?.((prev) => {
+            const base = prev ?? {};
+            const imageUrlNext = updatedUser.imageUrl ?? base.imageUrl ?? null;
+            const imageNext = updatedUser.image ?? base.image ?? imageUrlNext ?? null;
+            return {
+                ...base,
+                ...updatedUser,
+                imageUrl: imageUrlNext,
+                image: imageNext,
+            };
+        });
+    };
 
     const displayName = useMemo(
         () => user?.name ?? user?.username ?? "Nombre usuario",
@@ -74,7 +88,7 @@ export default function Profile() {
             try {
                 const data = await updateUser({ imageUrl });
                 const updatedUser = data?.user ?? data?.data?.user;
-                setUser?.(updatedUser ?? user);
+                applyUserUpdate(updatedUser);
                 setNotice("Image saved successfully.");
             } catch (error) {
                 setError(error.message);
@@ -117,16 +131,16 @@ export default function Profile() {
             const result = await updateUser(payload);
             const updatedUser = result?.user ?? result?.data?.user;
 
-            setUser?.(
-                updatedUser ?? ((prev) => ({
+            if (updatedUser) {
+                applyUserUpdate(updatedUser);
+            } else {
+                setUser?.((prev) => ({
                     ...(prev ?? {}),
                     name: profile.name,
                     username: profile.username,
                     email: profile.email,
-                    imageUrl: profile.imageUrl,
-                    password: passwords.newPassword,
-                })),
-            );
+                }));
+            }
 
             setNotice("Changes saved successfully.");
             setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });

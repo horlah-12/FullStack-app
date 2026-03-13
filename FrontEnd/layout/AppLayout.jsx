@@ -8,7 +8,7 @@ import ChatPanel from "../src/components/ChatPanel.jsx";
 export default function AppLayout({ children }) {
   const { user, setUser, setIsLoggedIn } = useContext(AuthContext);
   const username = user?.username ?? user?.name ?? "Username";
-  const userImage = user?.image ?? null;
+  const userImage = user?.image ?? user?.imageUrl ?? null;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
