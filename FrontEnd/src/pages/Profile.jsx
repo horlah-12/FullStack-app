@@ -4,7 +4,7 @@ import styles from "./profile.module.css";
 import { AuthContext } from "../components/AuthContext.jsx";
 import { updateUser, deleteUser } from "../services/apiUser.js";
 
-export default function AccountSettings() {
+export default function Profile() {
     const navigate = useNavigate();
     const { user, setUser } = useContext(AuthContext);
 
